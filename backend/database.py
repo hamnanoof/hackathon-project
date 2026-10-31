@@ -20,15 +20,8 @@ def close_db(_error=None):
         db.close()
 
 
-def init_db(app):
-    app.teardown_appcontext(close_db)
-    with app.app_context():
-        db = get_db()
-        schema_path = Path(app.config["BASE_DIR"]) / "database" / "schema.sql"
-        db.executescript(schema_path.read_text(encoding="utf-8"))
-        db.commit()
-        def migrate_db(db):
-    # Create the customer table for existing databases.
+
+def migrate_db(db):
     db.execute("""
         CREATE TABLE IF NOT EXISTS customers (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -42,7 +35,6 @@ def init_db(app):
         )
     """)
 
-    # Check whether subscriptions already have customer_id.
     columns = [
         row["name"]
         for row in db.execute("PRAGMA table_info(subscriptions)").fetchall()
@@ -65,7 +57,7 @@ def init_db(app):
     """)
 
     db.commit()
-    
+
 def init_db(app):
     app.teardown_appcontext(close_db)
 
