@@ -20,6 +20,7 @@ def close_db(_error=None):
         db.close()
 
 
+
 def init_db(app):
     app.teardown_appcontext(close_db)
 
