@@ -65,3 +65,17 @@ def init_db(app):
     """)
 
     db.commit()
+    
+def init_db(app):
+    app.teardown_appcontext(close_db)
+
+    with app.app_context():
+        db = get_db()
+
+        schema_path = Path(app.config["BASE_DIR"]) / "database" / "schema.sql"
+
+        db.executescript(
+            schema_path.read_text(encoding="utf-8")
+        )
+
+        migrate_db(db)
