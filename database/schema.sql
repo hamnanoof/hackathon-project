@@ -59,3 +59,15 @@ CREATE INDEX IF NOT EXISTS idx_products_user ON products(user_id);
 CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions(user_id);
 CREATE INDEX IF NOT EXISTS idx_invoices_user ON invoices(user_id);
 CREATE INDEX IF NOT EXISTS idx_payments_user ON payments(user_id);
+-- Indexes for foreign key columns
+CREATE INDEX IF NOT EXISTS idx_plans_product
+ON plans(product_id);
+
+CREATE INDEX IF NOT EXISTS idx_subscriptions_plan
+ON subscriptions(plan_id);
+
+CREATE INDEX IF NOT EXISTS idx_invoices_subscription
+ON invoices(subscription_id);
+
+CREATE INDEX IF NOT EXISTS idx_payments_invoice
+ON payments(invoice_id);
