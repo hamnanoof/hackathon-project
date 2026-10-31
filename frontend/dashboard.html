@@ -3,16 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
   <title>Overview — Subscript</title>
+
   <link rel="stylesheet" href="/css/style.css">
+
   <script defer src="/js/auth.js"></script>
   <script defer src="/js/dashboard.js"></script>
 </head>
+
 <body data-auth="required">
+
   <div class="app-shell">
+
+    <!-- Sidebar -->
     <aside class="sidebar">
-      <a class="brand" href="/dashboard.html">Subscript<span>.</span></a>
+
+      <a class="brand" href="/dashboard.html">
+        Subscript<span>.</span>
+      </a>
+
       <p class="nav-caption">WORKSPACE</p>
+
       <nav class="main-nav">
         <a class="active" href="/dashboard.html">Overview</a>
         <a href="/products.html">Products</a>
@@ -21,18 +33,255 @@
         <a href="/invoices.html">Invoices</a>
         <a href="/payments.html">Payments</a>
       </nav>
-      <div class="sidebar-bottom"><span id="user-name">Your workspace</span><button class="logout-button" data-logout>Sign out</button></div>
+
+      <div class="sidebar-bottom">
+        <span id="user-name">Your workspace</span>
+        <button class="logout-button" data-logout>Sign out</button>
+      </div>
+
     </aside>
+
+
+    <!-- Main Dashboard -->
     <main class="main-content">
-      <header class="page-header"><div><p class="eyebrow">WORKSPACE OVERVIEW</p><h1>Good to see you<span id="greeting-name"></span>.</h1><p class="muted">Here's how your subscription business is doing.</p></div><a class="button" href="/subscriptions.html">New subscription</a></header>
-      <section class="stat-grid" aria-label="Business summary">
-        <article class="stat-card"><span>Products</span><strong id="stat-products">—</strong><small>In your catalog</small></article>
-        <article class="stat-card"><span>Active subscriptions</span><strong id="stat-subscriptions">—</strong><small>Currently active</small></article>
-        <article class="stat-card"><span>Outstanding invoices</span><strong id="stat-invoices">—</strong><small>Awaiting payment</small></article>
-        <article class="stat-card"><span>Payments collected</span><strong id="stat-collected">—</strong><small>Completed payments</small></article>
+
+      <!-- Welcome Header -->
+      <header class="page-header dashboard-header">
+
+        <div>
+          <p class="eyebrow">WORKSPACE OVERVIEW</p>
+
+          <h1>
+            Good to see you<span id="greeting-name"></span>.
+          </h1>
+
+          <p class="muted">
+            Welcome to your subscription workspace.
+            Here's an overview of your business.
+          </p>
+        </div>
+
+        <a class="button" href="/subscriptions.html">
+          + New subscription
+        </a>
+
+      </header>
+
+
+      <!-- Summary Statistics -->
+      <section class="dashboard-section">
+
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">BUSINESS PERFORMANCE</p>
+            <h2>Your business at a glance</h2>
+          </div>
+        </div>
+
+        <section class="stat-grid" aria-label="Business summary">
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-icon">📦</span>
+              <span class="stat-label">PRODUCTS</span>
+            </div>
+
+            <strong id="stat-products">—</strong>
+            <small>Products in your catalog</small>
+          </article>
+
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-icon">🔄</span>
+              <span class="stat-label">SUBSCRIPTIONS</span>
+            </div>
+
+            <strong id="stat-subscriptions">—</strong>
+            <small>Currently active subscriptions</small>
+          </article>
+
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-icon">🧾</span>
+              <span class="stat-label">INVOICES</span>
+            </div>
+
+            <strong id="stat-invoices">—</strong>
+            <small>Invoices awaiting payment</small>
+          </article>
+
+
+          <article class="stat-card">
+            <div class="stat-top">
+              <span class="stat-icon">₹</span>
+              <span class="stat-label">COLLECTED</span>
+            </div>
+
+            <strong id="stat-collected">—</strong>
+            <small>Payments successfully collected</small>
+          </article>
+
+        </section>
+
       </section>
-      <section class="panel welcome-panel"><p class="eyebrow">YOUR NEXT STEP</p><h2>Build your subscription catalog</h2><p class="muted">Add a product, create a plan, then start a subscription to generate its invoice.</p><div class="inline-actions"><a class="button button-light" href="/products.html">Add a product</a><a class="text-link" href="/plans.html">Explore plans <span aria-hidden="true">→</span></a></div></section>
+
+
+      <!-- Quick Actions -->
+      <section class="dashboard-section">
+
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">QUICK ACCESS</p>
+            <h2>Manage your workspace</h2>
+            <p class="muted">
+              Access the important features of your subscription system.
+            </p>
+          </div>
+        </div>
+
+
+        <div class="quick-action-grid">
+
+          <a href="/products.html" class="quick-action-card">
+            <span class="action-icon">📦</span>
+            <h3>Products</h3>
+            <p>Add and manage the products offered by your business.</p>
+            <span class="action-link">Manage products →</span>
+          </a>
+
+
+          <a href="/plans.html" class="quick-action-card">
+            <span class="action-icon">📋</span>
+            <h3>Subscription Plans</h3>
+            <p>Create monthly or yearly plans with different prices.</p>
+            <span class="action-link">Manage plans →</span>
+          </a>
+
+
+          <a href="/subscriptions.html" class="quick-action-card">
+            <span class="action-icon">🔄</span>
+            <h3>Subscriptions</h3>
+            <p>Start subscriptions and manage their current status.</p>
+            <span class="action-link">View subscriptions →</span>
+          </a>
+
+
+          <a href="/invoices.html" class="quick-action-card">
+            <span class="action-icon">🧾</span>
+            <h3>Invoices</h3>
+            <p>View invoices generated for your subscriptions.</p>
+            <span class="action-link">View invoices →</span>
+          </a>
+
+
+          <a href="/payments.html" class="quick-action-card">
+            <span class="action-icon">💳</span>
+            <h3>Payments</h3>
+            <p>Record payments and monitor completed transactions.</p>
+            <span class="action-link">Manage payments →</span>
+          </a>
+
+        </div>
+
+      </section>
+
+
+      <!-- Getting Started -->
+      <section class="dashboard-section">
+
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">GETTING STARTED</p>
+            <h2>How Subscript works</h2>
+            <p class="muted">
+              Follow these steps to manage your subscription business.
+            </p>
+          </div>
+        </div>
+
+
+        <div class="workflow-panel">
+
+          <div class="workflow-step">
+            <span class="step-number">01</span>
+
+            <div>
+              <h3>Add your products</h3>
+              <p>
+                Create a catalog of products that your business offers.
+              </p>
+            </div>
+
+            <a href="/products.html">Get started →</a>
+          </div>
+
+
+          <div class="workflow-step">
+            <span class="step-number">02</span>
+
+            <div>
+              <h3>Create subscription plans</h3>
+              <p>
+                Define the pricing and billing interval for each product.
+              </p>
+            </div>
+
+            <a href="/plans.html">Create plans →</a>
+          </div>
+
+
+          <div class="workflow-step">
+            <span class="step-number">03</span>
+
+            <div>
+              <h3>Start a subscription</h3>
+              <p>
+                Select a plan and create a new customer subscription.
+              </p>
+            </div>
+
+            <a href="/subscriptions.html">Start now →</a>
+          </div>
+
+
+          <div class="workflow-step">
+            <span class="step-number">04</span>
+
+            <div>
+              <h3>Track invoices and payments</h3>
+              <p>
+                View generated invoices and record received payments.
+              </p>
+            </div>
+
+            <a href="/invoices.html">View invoices →</a>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- Bottom Information -->
+      <section class="dashboard-footer">
+        <div>
+          <h3>Everything in one workspace.</h3>
+          <p>
+            Manage products, subscription plans, billing and payments
+            from one place with Subscript.
+          </p>
+        </div>
+
+        <a class="button button-light" href="/subscriptions.html">
+          Explore subscriptions
+        </a>
+      </section>
+
     </main>
+
   </div>
+
 </body>
 </html>
