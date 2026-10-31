@@ -3,42 +3,72 @@ import sqlite3
 
 from flask import Blueprint, jsonify, request, session
 
-from backend.auth import require_auth
+from backend.auth import require_role
 from backend.database import get_db
 
 
 payments_bp = Blueprint("payments", __name__, url_prefix="/api/payments")
 
 
-# Get all payments belonging to the logged-in user
+# Get payments belonging to the logged-in user
 @payments_bp.get("")
-@require_auth
+@require_role("admin", "staff", "customer")
 def list_payments():
 
-    rows = get_db().execute(
-        """SELECT payments.id, payments.amount, payments.method,
-                  payments.status, payments.paid_at,
-                  invoices.invoice_number
-           FROM payments
-           JOIN invoices
-           ON invoices.id = payments.invoice_id
-           AND invoices.user_id = payments.user_id
-           WHERE payments.user_id = ?
-           ORDER BY payments.id DESC""",
-        (session["user_id"],),
-    ).fetchall()
+    db = get_db()
+
+    user = db.execute(
+        "SELECT role, email FROM users WHERE id = ?",
+        (session["user_id"],)
+    ).fetchone()
+
+    if user is None:
+        session.clear()
+        return jsonify({"error": "Account not found"}), 401
+
+    if user["role"] == "customer":
+
+        rows = db.execute(
+            """SELECT payments.id, payments.amount, payments.method,
+                      payments.status, payments.paid_at,
+                      invoices.invoice_number
+               FROM payments
+               JOIN invoices
+                   ON invoices.id = payments.invoice_id
+               JOIN subscriptions
+                   ON subscriptions.id = invoices.subscription_id
+               JOIN customers
+                   ON customers.id = subscriptions.customer_id
+               WHERE customers.email = ?
+               ORDER BY payments.id DESC""",
+            (user["email"],),
+        ).fetchall()
+
+    else:
+
+        rows = db.execute(
+            """SELECT payments.id, payments.amount, payments.method,
+                      payments.status, payments.paid_at,
+                      invoices.invoice_number
+               FROM payments
+               JOIN invoices
+                   ON invoices.id = payments.invoice_id
+                   AND invoices.user_id = payments.user_id
+               WHERE payments.user_id = ?
+               ORDER BY payments.id DESC""",
+            (session["user_id"],),
+        ).fetchall()
 
     return jsonify([dict(row) for row in rows])
 
 
 # Record a payment for an invoice
 @payments_bp.post("")
-@require_auth
+@require_role("admin", "staff", "customer")
 def record_payment():
 
     data = request.get_json(silent=True)
 
-    # Validate request data
     if not isinstance(data, dict):
         return jsonify({"error": "Invalid request data"}), 400
 
@@ -70,35 +100,73 @@ def record_payment():
     db = get_db()
     user_id = session["user_id"]
 
+    user = db.execute(
+        "SELECT role, email FROM users WHERE id = ?",
+        (user_id,)
+    ).fetchone()
+
+    if user is None:
+        session.clear()
+        return jsonify({"error": "Account not found"}), 401
+
     try:
-        # Start a transaction to prevent partial updates
+        # Start transaction
         db.execute("BEGIN IMMEDIATE")
 
-        # Find invoice belonging to the logged-in user
-        invoice = db.execute(
-            """SELECT id, amount, status
-               FROM invoices
-               WHERE id = ? AND user_id = ?""",
-            (invoice_id, user_id),
-        ).fetchone()
+        # Find invoice based on user role
+        if user["role"] == "customer":
 
+            invoice = db.execute(
+                """SELECT invoices.id, invoices.amount,
+                          invoices.status, invoices.user_id
+                   FROM invoices
+                   JOIN subscriptions
+                       ON subscriptions.id = invoices.subscription_id
+                   JOIN customers
+                       ON customers.id = subscriptions.customer_id
+                   WHERE invoices.id = ?
+                   AND customers.email = ?""",
+                (invoice_id, user["email"]),
+            ).fetchone()
+
+        else:
+
+            invoice = db.execute(
+                """SELECT id, amount, status, user_id
+                   FROM invoices
+                   WHERE id = ? AND user_id = ?""",
+                (invoice_id, user_id),
+            ).fetchone()
+
+        # Check invoice ownership
         if invoice is None:
             db.rollback()
             return jsonify({"error": "Invoice not found"}), 404
 
-        # Prevent payment of an already paid invoice
+        # Prevent duplicate payment
         if invoice["status"] == "paid":
             db.rollback()
             return jsonify({
                 "error": "Invoice has already been paid"
             }), 409
 
-        # Record payment
+        if invoice["status"] != "pending":
+            db.rollback()
+            return jsonify({
+                "error": "Only pending invoices can be paid"
+            }), 409
+
+        # Record payment under the invoice owner's account
         cursor = db.execute(
             """INSERT INTO payments
                (user_id, invoice_id, amount, method, status)
                VALUES (?, ?, ?, ?, 'completed')""",
-            (user_id, invoice_id, invoice["amount"], method),
+            (
+                invoice["user_id"],
+                invoice_id,
+                invoice["amount"],
+                method
+            ),
         )
 
         # Update invoice status
@@ -106,17 +174,16 @@ def record_payment():
             """UPDATE invoices
                SET status = 'paid'
                WHERE id = ? AND user_id = ? AND status = 'pending'""",
-            (invoice_id, user_id),
+            (invoice_id, invoice["user_id"]),
         )
 
-        # Ensure invoice was updated successfully
         if update.rowcount != 1:
             db.rollback()
             return jsonify({
                 "error": "Invoice could not be updated"
             }), 409
 
-        # Save both operations together
+        # Commit both operations
         db.commit()
 
         return jsonify({
@@ -135,3 +202,4 @@ def record_payment():
     except Exception:
         db.rollback()
         raise
+
