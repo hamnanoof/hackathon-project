@@ -10,21 +10,51 @@ from backend.database import get_db
 products_bp = Blueprint("products", __name__, url_prefix="/api")
 
 
+# GET PRODUCTS
+# Admin/staff see their own products.
+# Customers see products belonging to their business.
 @products_bp.get("/products")
 @require_role("admin", "staff", "customer")
 def list_products():
-    rows = get_db().execute(
-        """SELECT id, name, description, created_at
-           FROM products WHERE user_id = ? ORDER BY name""",
-        (session["user_id"],),
-    ).fetchall()
+
+    db = get_db()
+    role = db.execute(
+        "SELECT role FROM users WHERE id = ?",
+        (session["user_id"],)
+    ).fetchone()["role"]
+
+    if role == "customer":
+
+        rows = db.execute(
+            """SELECT DISTINCT products.id, products.name,
+                      products.description, products.created_at
+               FROM products
+               JOIN customers ON customers.user_id = products.user_id
+               WHERE customers.account_id = ?
+               ORDER BY products.name""",
+            (session["user_id"],)
+        ).fetchall()
+
+    else:
+
+        rows = db.execute(
+            """SELECT id, name, description, created_at
+               FROM products
+               WHERE user_id = ?
+               ORDER BY name""",
+            (session["user_id"],)
+        ).fetchall()
+
     return jsonify([dict(row) for row in rows])
 
 
+# CREATE PRODUCT
 @products_bp.post("/products")
 @require_role("admin", "staff")
 def create_product():
+
     data = request.get_json(silent=True) or {}
+
     name = str(data.get("name", "")).strip()
     description = str(data.get("description", "")).strip()
 
@@ -32,14 +62,21 @@ def create_product():
         return jsonify({"error": "Product name is required"}), 400
 
     db = get_db()
+
     try:
         cursor = db.execute(
-            "INSERT INTO products (user_id, name, description) VALUES (?, ?, ?)",
-            (session["user_id"], name, description),
+            """INSERT INTO products (user_id, name, description)
+               VALUES (?, ?, ?)""",
+            (session["user_id"], name, description)
         )
+
         db.commit()
+
     except sqlite3.IntegrityError:
-        return jsonify({"error": "A product with this name already exists"}), 409
+        db.rollback()
+        return jsonify({
+            "error": "A product with this name already exists"
+        }), 409
 
     return jsonify({
         "id": cursor.lastrowid,
@@ -48,17 +85,24 @@ def create_product():
     }), 201
 
 
+# DELETE PRODUCT
 @products_bp.delete("/products/<int:product_id>")
 @require_role("admin", "staff")
 def delete_product(product_id):
+
     db = get_db()
+
     try:
         cursor = db.execute(
-            "DELETE FROM products WHERE id = ? AND user_id = ?",
-            (product_id, session["user_id"]),
+            """DELETE FROM products
+               WHERE id = ? AND user_id = ?""",
+            (product_id, session["user_id"])
         )
+
         db.commit()
+
     except sqlite3.IntegrityError:
+        db.rollback()
         return jsonify({
             "error": "This product has plans or subscriptions and cannot be deleted"
         }), 409
@@ -69,24 +113,56 @@ def delete_product(product_id):
     return jsonify({"message": "Product deleted"})
 
 
+# GET PLANS
+# Customers see plans offered by their business.
 @products_bp.get("/plans")
 @require_role("admin", "staff", "customer")
 def list_plans():
-    rows = get_db().execute(
-        """SELECT plans.id, plans.product_id, plans.name, plans.price,
-                  plans.billing_interval, products.name AS product_name
-           FROM plans JOIN products ON products.id = plans.product_id
-           WHERE products.user_id = ?
-           ORDER BY products.name, plans.price""",
-        (session["user_id"],),
-    ).fetchall()
+
+    db = get_db()
+
+    role = db.execute(
+        "SELECT role FROM users WHERE id = ?",
+        (session["user_id"],)
+    ).fetchone()["role"]
+
+    if role == "customer":
+
+        rows = db.execute(
+            """SELECT plans.id, plans.product_id, plans.name,
+                      plans.price, plans.billing_interval,
+                      products.name AS product_name
+               FROM plans
+               JOIN products ON products.id = plans.product_id
+               JOIN customers ON customers.user_id = products.user_id
+               WHERE customers.account_id = ?
+               ORDER BY products.name, plans.price""",
+            (session["user_id"],)
+        ).fetchall()
+
+    else:
+
+        rows = db.execute(
+            """SELECT plans.id, plans.product_id, plans.name,
+                      plans.price, plans.billing_interval,
+                      products.name AS product_name
+               FROM plans
+               JOIN products ON products.id = plans.product_id
+               WHERE products.user_id = ?
+               ORDER BY products.name, plans.price""",
+            (session["user_id"],)
+        ).fetchall()
+
     return jsonify([dict(row) for row in rows])
 
 
+# CREATE PLAN
 @products_bp.post("/plans")
 @require_role("admin", "staff")
 def create_plan():
+
     data = request.get_json(silent=True) or {}
+
     name = str(data.get("name", "")).strip()
     interval = str(data.get("billing_interval", "")).strip().lower()
 
@@ -94,27 +170,37 @@ def create_plan():
         product_id = int(data.get("product_id"))
         price = float(data.get("price"))
     except (TypeError, ValueError):
-        return jsonify({"error": "A valid product and price are required"}), 400
+        return jsonify({
+            "error": "A valid product and price are required"
+        }), 400
 
-    if not name or price < 0 or interval not in {"month", "year"}:
+    if (
+        not name
+        or price < 0
+        or interval not in {"month", "year"}
+    ):
         return jsonify({
             "error": "Provide a plan name, non-negative price, and month or year interval"
         }), 400
 
     db = get_db()
+
     product = db.execute(
-        "SELECT id FROM products WHERE id = ? AND user_id = ?",
-        (product_id, session["user_id"]),
+        """SELECT id FROM products
+           WHERE id = ? AND user_id = ?""",
+        (product_id, session["user_id"])
     ).fetchone()
 
     if product is None:
         return jsonify({"error": "Product not found"}), 404
 
     cursor = db.execute(
-        """INSERT INTO plans (product_id, name, price, billing_interval)
+        """INSERT INTO plans
+           (product_id, name, price, billing_interval)
            VALUES (?, ?, ?, ?)""",
-        (product_id, name, price, interval),
+        (product_id, name, price, interval)
     )
+
     db.commit()
 
     return jsonify({
@@ -126,18 +212,27 @@ def create_plan():
     }), 201
 
 
+# DELETE PLAN
 @products_bp.delete("/plans/<int:plan_id>")
 @require_role("admin", "staff")
 def delete_plan(plan_id):
+
     db = get_db()
+
     try:
         cursor = db.execute(
-            """DELETE FROM plans WHERE id = ? AND product_id IN
-               (SELECT id FROM products WHERE user_id = ?)""",
-            (plan_id, session["user_id"]),
+            """DELETE FROM plans
+               WHERE id = ?
+               AND product_id IN (
+                   SELECT id FROM products WHERE user_id = ?
+               )""",
+            (plan_id, session["user_id"])
         )
+
         db.commit()
+
     except sqlite3.IntegrityError:
+        db.rollback()
         return jsonify({
             "error": "This plan has subscriptions and cannot be deleted"
         }), 409
@@ -146,3 +241,4 @@ def delete_plan(plan_id):
         return jsonify({"error": "Plan not found"}), 404
 
     return jsonify({"message": "Plan deleted"})
+

@@ -1,9 +1,8 @@
 
 from functools import wraps
-import sqlite3
 
 from flask import Blueprint, jsonify, request, session
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 
 from backend.database import get_db
 
@@ -51,47 +50,14 @@ def require_role(*allowed_roles):
     return decorator
 
 
-# User registration
+# Public registration is disabled.
+# Admin/staff create customer accounts instead.
 @auth_bp.post("/register")
 def register():
 
-    data = request.get_json(silent=True) or {}
-
-    name = str(data.get("name", "")).strip()
-    email = str(data.get("email", "")).strip().lower()
-    password = str(data.get("password", ""))
-
-    if not name or not email or len(password) < 8:
-        return jsonify({
-            "error": "Name, email, and a password of at least 8 characters are required"
-        }), 400
-
-    db = get_db()
-
-    try:
-        cursor = db.execute(
-            """INSERT INTO users
-               (name, email, password_hash)
-               VALUES (?, ?, ?)""",
-            (name, email, generate_password_hash(password))
-        )
-
-        db.commit()
-
-    except sqlite3.IntegrityError:
-        return jsonify({
-            "error": "An account with this email already exists"
-        }), 409
-
-    session.clear()
-    session["user_id"] = cursor.lastrowid
-
     return jsonify({
-        "id": cursor.lastrowid,
-        "name": name,
-        "email": email,
-        "role": "customer"
-    }), 201
+        "error": "Registration is disabled. Contact your administrator."
+    }), 403
 
 
 # User login
@@ -151,8 +117,10 @@ def me():
 
     if user is None:
         session.clear()
+
         return jsonify({
             "error": "Account not found"
         }), 401
 
     return jsonify(dict(user))
+
