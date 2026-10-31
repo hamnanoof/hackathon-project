@@ -1,14 +1,17 @@
 
+import click
 from flask import Flask, jsonify, send_from_directory, session
 
 from backend import config
 from backend.auth import auth_bp, require_auth
 from backend.customers import customers_bp
 from backend.database import init_db, get_db
+from backend.errors import ApiError
 from backend.invoices import invoices_bp
 from backend.payments import payments_bp
 from backend.products import products_bp
 from backend.subscriptions import subscriptions_bp
+from backend.seed import seed_customers
 
 
 def create_app():
@@ -24,6 +27,11 @@ def create_app():
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
     init_db(app)
+
+    # Global error handler for ApiError
+    @app.errorhandler(ApiError)
+    def handle_api_error(error):
+        return jsonify(error.to_dict()), error.status_code
 
     # Register backend routes
     app.register_blueprint(auth_bp)
@@ -153,6 +161,15 @@ def create_app():
 
 
 app = create_app()
+
+
+# CLI command for seeding data
+@app.cli.command()
+@click.option('--customers', default=10, help='Number of customers to create')
+def seed(customers):
+    """Seed the database with demo data"""
+    with app.app_context():
+        seed_customers(customers)
 
 
 if __name__ == "__main__":

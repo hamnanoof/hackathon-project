@@ -1,11 +1,13 @@
 
 from functools import wraps
 import sqlite3
+import re
 
 from flask import Blueprint, jsonify, request, session
 from werkzeug.security import check_password_hash, generate_password_hash
 
 from backend.database import get_db
+from backend.errors import ApiError
 
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api/auth")
@@ -17,7 +19,7 @@ def require_auth(view):
     def wrapped(*args, **kwargs):
 
         if "user_id" not in session:
-            return jsonify({"error": "Authentication required"}), 401
+            raise ApiError("Authentication required", 401)
 
         return view(*args, **kwargs)
 
@@ -39,10 +41,10 @@ def require_role(*allowed_roles):
 
             if user is None:
                 session.clear()
-                return jsonify({"error": "Account not found"}), 401
+                raise ApiError("Account not found", 401)
 
             if user["role"] not in allowed_roles:
-                return jsonify({"error": "Permission denied"}), 403
+                raise ApiError("Permission denied", 403)
 
             return view(*args, **kwargs)
 
@@ -61,27 +63,39 @@ def register():
     email = str(data.get("email", "")).strip().lower()
     password = str(data.get("password", ""))
 
-    if not name or not email or len(password) < 8:
-        return jsonify({
-            "error": "Name, email, and a password of at least 8 characters are required"
-        }), 400
+    # Password strength validation
+    if len(password) < 8:
+        raise ApiError("Password must be at least 8 characters long", 400)
+    if not re.search(r'[A-Z]', password):
+        raise ApiError("Password must contain at least one uppercase letter", 400)
+    if not re.search(r'[a-z]', password):
+        raise ApiError("Password must contain at least one lowercase letter", 400)
+    if not re.search(r'\d', password):
+        raise ApiError("Password must contain at least one digit", 400)
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        raise ApiError("Password must contain at least one special character", 400)
+
+    if not name or not email:
+        raise ApiError("Name and email are required", 400)
 
     db = get_db()
+
+    # Check if this is the first user
+    user_count = db.execute("SELECT COUNT(*) as count FROM users").fetchone()["count"]
+    role = "admin" if user_count == 0 else "customer"
 
     try:
         cursor = db.execute(
             """INSERT INTO users
-               (name, email, password_hash)
-               VALUES (?, ?, ?)""",
-            (name, email, generate_password_hash(password))
+               (name, email, password_hash, role)
+               VALUES (?, ?, ?, ?)""",
+            (name, email, generate_password_hash(password), role)
         )
 
         db.commit()
 
     except sqlite3.IntegrityError:
-        return jsonify({
-            "error": "An account with this email already exists"
-        }), 409
+        raise ApiError("An account with this email already exists", 409)
 
     session.clear()
     session["user_id"] = cursor.lastrowid
@@ -90,7 +104,7 @@ def register():
         "id": cursor.lastrowid,
         "name": name,
         "email": email,
-        "role": "customer"
+        "role": role
     }), 201
 
 
@@ -111,9 +125,7 @@ def login():
     if user is None or not check_password_hash(
         user["password_hash"], password
     ):
-        return jsonify({
-            "error": "Invalid email or password"
-        }), 401
+        raise ApiError("Invalid email or password", 401)
 
     session.clear()
     session["user_id"] = user["id"]
@@ -151,8 +163,6 @@ def me():
 
     if user is None:
         session.clear()
-        return jsonify({
-            "error": "Account not found"
-        }), 401
+        raise ApiError("Account not found", 401)
 
     return jsonify(dict(user))

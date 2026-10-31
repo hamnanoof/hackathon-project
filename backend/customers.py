@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash
 
 from backend.auth import require_role
 from backend.database import get_db
+from backend.errors import ApiError
 
 
 customers_bp = Blueprint("customers", __name__, url_prefix="/api/customers")
@@ -16,16 +17,41 @@ customers_bp = Blueprint("customers", __name__, url_prefix="/api/customers")
 @customers_bp.get("")
 @require_role("admin", "staff")
 def list_customers():
+    page = request.args.get("page", 1, type=int)
+    page_size = request.args.get("page_size", 20, type=int)
 
-    rows = get_db().execute(
+    if page < 1:
+        page = 1
+    if page_size < 1 or page_size > 100:
+        page_size = 20
+
+    offset = (page - 1) * page_size
+
+    db = get_db()
+
+    total = db.execute(
+        "SELECT COUNT(*) as total FROM customers WHERE user_id = ?",
+        (session["user_id"],)
+    ).fetchone()["total"]
+
+    rows = db.execute(
         """SELECT id, name, email, phone, address, account_id, created_at
            FROM customers
            WHERE user_id = ?
-           ORDER BY name""",
-        (session["user_id"],),
+           ORDER BY name
+           LIMIT ? OFFSET ?""",
+        (session["user_id"], page_size, offset),
     ).fetchall()
 
-    return jsonify([dict(row) for row in rows])
+    pages = (total + page_size - 1) // page_size if total > 0 else 1
+
+    return jsonify({
+        "items": [dict(row) for row in rows],
+        "total": total,
+        "page": page,
+        "page_size": page_size,
+        "pages": pages
+    })
 
 
 # Create a customer and their login account
