@@ -1,20 +1,183 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Invoices — Subscript</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <script defer src="/js/auth.js"></script>
-  <script defer src="/js/billing.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="description"
+          content="Manage, review and track subscription invoices with Subscript.">
+
+    <meta name="theme-color" content="#ffffff">
+
+    <title>Invoices | Subscript</title>
+
+    <link rel="stylesheet" href="/css/style.css">
+
+    <script defer src="/js/auth.js"></script>
+    <script defer src="/js/billing.js"></script>
 </head>
+
 <body data-auth="required" data-billing="invoices">
-  <div class="app-shell">
-    <aside class="sidebar"><a class="brand" href="/dashboard.html">Subscript<span>.</span></a><p class="nav-caption">WORKSPACE</p><nav class="main-nav"><a href="/dashboard.html">Overview</a><a href="/products.html">Products</a><a href="/plans.html">Plans</a><a href="/subscriptions.html">Subscriptions</a><a class="active" href="/invoices.html">Invoices</a><a href="/payments.html">Payments</a></nav><div class="sidebar-bottom"><span id="user-name">Your workspace</span><button class="logout-button" data-logout>Sign out</button></div></aside>
-    <main class="main-content">
-      <header class="page-header"><div><p class="eyebrow">BILLING</p><h1>Invoices</h1><p class="muted">Review invoices generated for your subscriptions.</p></div></header>
-      <section class="panel table-panel"><div class="section-heading"><div><h2>All invoices</h2><p class="muted">Pending invoices can be recorded as paid from Payments.</p></div></div><div class="table-wrap"><table><thead><tr><th>Invoice</th><th>Product / plan</th><th>Amount</th><th>Due date</th><th>Status</th></tr></thead><tbody id="invoices-table"></tbody></table></div></section>
-    </main>
-  </div>
+
+    <!-- Application Layout -->
+    <div class="app-shell">
+
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar" aria-label="Main sidebar">
+
+            <a class="brand"
+               href="/dashboard.html"
+               aria-label="Subscript home">
+                Subscript<span>.</span>
+            </a>
+
+            <p class="nav-caption">WORKSPACE</p>
+
+            <nav class="main-nav" aria-label="Main navigation">
+
+                <a href="/dashboard.html">
+                    Overview
+                </a>
+
+                <a href="/products.html">
+                    Products
+                </a>
+
+                <a href="/plans.html">
+                    Plans
+                </a>
+
+                <a href="/subscriptions.html">
+                    Subscriptions
+                </a>
+
+                <a href="/invoices.html"
+                   class="active"
+                   aria-current="page">
+                    Invoices
+                </a>
+
+                <a href="/payments.html">
+                    Payments
+                </a>
+
+            </nav>
+
+            <!-- Account Section -->
+            <div class="sidebar-bottom">
+
+                <span id="user-name">
+                    Your workspace
+                </span>
+
+                <button
+                    type="button"
+                    class="logout-button"
+                    data-logout>
+                    Sign out
+                </button>
+
+            </div>
+
+        </aside>
+
+
+        <!-- Main Content -->
+        <main class="main-content" id="main-content">
+
+            <!-- Page Header -->
+            <header class="page-header">
+
+                <div>
+
+                    <p class="eyebrow">
+                        BILLING MANAGEMENT
+                    </p>
+
+                    <h1>Invoices</h1>
+
+                    <p class="muted">
+                        Manage and track invoices generated
+                        from your subscriptions.
+                    </p>
+
+                </div>
+
+            </header>
+
+
+            <!-- Notification Area -->
+            <div
+                id="form-message"
+                role="status"
+                aria-live="polite"
+                aria-atomic="true">
+            </div>
+
+
+            <!-- Invoice Section -->
+            <section
+                class="panel table-panel"
+                aria-labelledby="invoice-heading">
+
+                <div class="section-heading">
+
+                    <div>
+
+                        <h2 id="invoice-heading">
+                            All invoices
+                        </h2>
+
+                        <p class="muted">
+                            View invoice details, payment status
+                            and upcoming due dates.
+                        </p>
+
+                    </div>
+
+                    <a
+                        href="/payments.html"
+                        class="button button-primary">
+                        Manage Payments
+                    </a>
+
+                </div>
+
+
+                <!-- Responsive Invoice Table -->
+                <div class="table-wrap">
+
+                    <table aria-label="Subscription invoices">
+
+                        <thead>
+
+                            <tr>
+                                <th scope="col">Invoice</th>
+                                <th scope="col">Product / Plan</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Due Date</th>
+                                <th scope="col">Status</th>
+                            </tr>
+
+                        </thead>
+
+                        <tbody id="invoices-table">
+
+                            <!-- Invoice records loaded dynamically -->
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
 </body>
 </html>
