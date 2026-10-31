@@ -12,10 +12,12 @@ invoices_bp = Blueprint("invoices", __name__, url_prefix="/api/invoices")
 def list_invoices():
     rows = get_db().execute(
         """SELECT invoices.id, invoices.invoice_number, invoices.amount, invoices.status,
-                  invoices.due_date, products.name AS product_name, plans.name AS plan_name
+                  invoices.due_date, products.name AS product_name, plans.name AS plan_name,
+                  customers.name AS customer_name, customers.email AS customer_email
            FROM invoices JOIN subscriptions ON subscriptions.id = invoices.subscription_id
            JOIN plans ON plans.id = subscriptions.plan_id
            JOIN products ON products.id = plans.product_id
+           LEFT JOIN customers ON customers.id = subscriptions.customer_id
            WHERE invoices.user_id = ? ORDER BY invoices.id DESC""",
         (session["user_id"],),
     ).fetchall()

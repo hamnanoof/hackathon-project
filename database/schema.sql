@@ -30,6 +30,7 @@ CREATE TABLE IF NOT EXISTS subscriptions (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     plan_id INTEGER NOT NULL REFERENCES plans(id) ON DELETE RESTRICT,
+    customer_id INTEGER REFERENCES customers(id),
     status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'cancelled')),
     start_date TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -72,3 +73,16 @@ ON invoices(subscription_id);
 
 CREATE INDEX IF NOT EXISTS idx_payments_invoice
 ON payments(invoice_id);
+CREATE TABLE IF NOT EXISTS customers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT,
+    address TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, email)
+);
+
+CREATE INDEX IF NOT EXISTS idx_customers_user
+ON customers(user_id);
