@@ -1,3 +1,4 @@
+
 <!doctype html>
 <html lang="en">
 <head>
@@ -7,19 +8,65 @@
   <link rel="stylesheet" href="/css/style.css">
   <script defer src="/js/auth.js"></script>
 </head>
+
 <body class="auth-page">
-  <a class="brand auth-brand" href="/">Subscript<span>.</span></a>
+
+  <a class="brand auth-brand" href="/">
+    Subscript<span>.</span>
+  </a>
+
   <main class="auth-card">
+
     <p class="eyebrow">WELCOME BACK</p>
+
     <h1>Sign in</h1>
-    <p class="muted">Pick up where you left off.</p>
+
+    <p class="muted">
+      Sign in to access your Subscript account.
+    </p>
+
     <form id="login-form" class="stack-form">
-      <label>Email address<input name="email" type="email" autocomplete="email" required></label>
-      <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
-      <button class="button full-width" type="submit">Sign in</button>
-      <p id="form-message" class="form-message" role="status"></p>
+
+      <label>
+        Email address
+        <input
+          name="email"
+          type="email"
+          placeholder="Enter your email"
+          autocomplete="email"
+          required
+        >
+      </label>
+
+      <label>
+        Password
+        <input
+          name="password"
+          type="password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          required
+        >
+      </label>
+
+      <button class="button full-width" type="submit">
+        Sign in
+      </button>
+
+      <p
+        id="form-message"
+        class="form-message"
+        role="status"
+      ></p>
+
     </form>
-    <p class="auth-foot">New to Subscript? <a href="/register.html">Create an account</a></p>
+
+    <p class="auth-foot">
+      Customer accounts are created by your administrator.
+    </p>
+
   </main>
+
 </body>
 </html>
+

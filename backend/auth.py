@@ -1,10 +1,13 @@
 
 from functools import wraps
+<<<<<<< HEAD
 import sqlite3
 import re
+=======
+>>>>>>> cd462481b7aa5e353a85035b9312c509e64005d4
 
 from flask import Blueprint, jsonify, request, session
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 
 from backend.database import get_db
 from backend.errors import ApiError
@@ -53,10 +56,12 @@ def require_role(*allowed_roles):
     return decorator
 
 
-# User registration
+# Public registration is disabled.
+# Admin/staff create customer accounts instead.
 @auth_bp.post("/register")
 def register():
 
+<<<<<<< HEAD
     data = request.get_json(silent=True) or {}
 
     name = str(data.get("name", "")).strip()
@@ -106,6 +111,11 @@ def register():
         "email": email,
         "role": role
     }), 201
+=======
+    return jsonify({
+        "error": "Registration is disabled. Contact your administrator."
+    }), 403
+>>>>>>> cd462481b7aa5e353a85035b9312c509e64005d4
 
 
 # User login
@@ -163,6 +173,14 @@ def me():
 
     if user is None:
         session.clear()
+<<<<<<< HEAD
         raise ApiError("Account not found", 401)
+=======
+
+        return jsonify({
+            "error": "Account not found"
+        }), 401
+>>>>>>> cd462481b7aa5e353a85035b9312c509e64005d4
 
     return jsonify(dict(user))
+

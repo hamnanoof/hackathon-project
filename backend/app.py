@@ -26,6 +26,7 @@ def create_app():
     app.config["SESSION_COOKIE_HTTPONLY"] = True
     app.config["SESSION_COOKIE_SAMESITE"] = "Lax"
 
+    # Initialize database
     init_db(app)
 
     # Global error handler for ApiError
@@ -41,7 +42,7 @@ def create_app():
     app.register_blueprint(invoices_bp)
     app.register_blueprint(payments_bp)
 
-    # Dashboard API
+    # DASHBOARD API
     @app.get("/api/dashboard")
     @require_auth
     def dashboard():
@@ -50,7 +51,7 @@ def create_app():
         user_id = session["user_id"]
 
         user = db.execute(
-            "SELECT role, email FROM users WHERE id = ?",
+            "SELECT role FROM users WHERE id = ?",
             (user_id,)
         ).fetchone()
 
@@ -60,21 +61,27 @@ def create_app():
 
         role = user["role"]
 
+        # ADMIN AND STAFF DASHBOARD
         if role in ("admin", "staff"):
 
             counts = db.execute(
                 """SELECT
-                    (SELECT COUNT(*) FROM products
+
+                    (SELECT COUNT(*)
+                     FROM products
                      WHERE user_id = ?) AS products,
 
-                    (SELECT COUNT(*) FROM customers
+                    (SELECT COUNT(*)
+                     FROM customers
                      WHERE user_id = ?) AS customers,
 
-                    (SELECT COUNT(*) FROM subscriptions
+                    (SELECT COUNT(*)
+                     FROM subscriptions
                      WHERE user_id = ?
                      AND status = 'active') AS active_subscriptions,
 
-                    (SELECT COUNT(*) FROM invoices
+                    (SELECT COUNT(*)
+                     FROM invoices
                      WHERE user_id = ?
                      AND status = 'pending') AS pending_invoices,
 
@@ -83,21 +90,35 @@ def create_app():
                      WHERE user_id = ?
                      AND status = 'completed') AS collected
                 """,
-                (user_id, user_id, user_id, user_id, user_id),
+                (
+                    user_id,
+                    user_id,
+                    user_id,
+                    user_id,
+                    user_id
+                )
             ).fetchone()
 
+        # CUSTOMER DASHBOARD
         elif role == "customer":
 
             counts = db.execute(
                 """SELECT
 
+                    (SELECT COUNT(DISTINCT products.id)
+                     FROM products
+                     JOIN customers
+                     ON customers.user_id = products.user_id
+                     WHERE customers.account_id = ?
+                    ) AS products,
+
                     (SELECT COUNT(*)
                      FROM subscriptions
                      JOIN customers
                      ON customers.id = subscriptions.customer_id
-                     WHERE customers.email = ?
-                     AND subscriptions.status = 'active')
-                     AS active_subscriptions,
+                     WHERE customers.account_id = ?
+                     AND subscriptions.status = 'active'
+                    ) AS active_subscriptions,
 
                     (SELECT COUNT(*)
                      FROM invoices
@@ -105,9 +126,9 @@ def create_app():
                      ON subscriptions.id = invoices.subscription_id
                      JOIN customers
                      ON customers.id = subscriptions.customer_id
-                     WHERE customers.email = ?
-                     AND invoices.status = 'pending')
-                     AS pending_invoices,
+                     WHERE customers.account_id = ?
+                     AND invoices.status = 'pending'
+                    ) AS pending_invoices,
 
                     (SELECT COALESCE(SUM(payments.amount), 0)
                      FROM payments
@@ -117,29 +138,36 @@ def create_app():
                      ON subscriptions.id = invoices.subscription_id
                      JOIN customers
                      ON customers.id = subscriptions.customer_id
-                     WHERE customers.email = ?
-                     AND payments.status = 'completed')
-                     AS collected
+                     WHERE customers.account_id = ?
+                     AND payments.status = 'completed'
+                    ) AS collected
                 """,
-                (user["email"], user["email"], user["email"]),
+                (
+                    user_id,
+                    user_id,
+                    user_id,
+                    user_id
+                )
             ).fetchone()
 
             return jsonify({
                 "role": role,
-                "products": 0,
                 "customers": 0,
                 **dict(counts)
             })
 
         else:
-            return jsonify({"error": "Invalid account role"}), 403
+
+            return jsonify({
+                "error": "Invalid account role"
+            }), 403
 
         return jsonify({
             "role": role,
             **dict(counts)
         })
 
-    # Frontend home page
+    # FRONTEND HOME PAGE
     @app.get("/")
     def index():
 
@@ -148,7 +176,7 @@ def create_app():
             "index.html"
         )
 
-    # Frontend static files
+    # FRONTEND STATIC FILES
     @app.get("/<path:filename>")
     def frontend_file(filename):
 
@@ -175,5 +203,3 @@ def seed(customers):
 if __name__ == "__main__":
 
     app.run(debug=True)
-
-
