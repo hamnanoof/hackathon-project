@@ -15,9 +15,11 @@ def list_subscriptions():
     rows = get_db().execute(
         """SELECT subscriptions.id, subscriptions.status, subscriptions.start_date,
                   plans.name AS plan_name, plans.price, plans.billing_interval,
-                  products.name AS product_name
+                  products.name AS product_name, customers.name AS customer_name,
+                  customers.email AS customer_email
            FROM subscriptions JOIN plans ON plans.id = subscriptions.plan_id
            JOIN products ON products.id = plans.product_id
+           LEFT JOIN customers ON customers.id = subscriptions.customer_id
            WHERE subscriptions.user_id = ? ORDER BY subscriptions.id DESC""",
         (session["user_id"],),
     ).fetchall()
@@ -30,6 +32,7 @@ def create_subscription():
     data = request.get_json(silent=True) or {}
     try:
         plan_id = int(data.get("plan_id"))
+        customer_id = int(data.get("customer_id")) if data.get("customer_id") else None
     except (TypeError, ValueError):
         return jsonify({"error": "A valid plan is required"}), 400
     db = get_db()
@@ -40,10 +43,17 @@ def create_subscription():
     ).fetchone()
     if plan is None:
         return jsonify({"error": "Plan not found"}), 404
+    if customer_id:
+        customer = db.execute(
+            "SELECT id FROM customers WHERE id = ? AND user_id = ?",
+            (customer_id, session["user_id"]),
+        ).fetchone()
+        if customer is None:
+            return jsonify({"error": "Customer not found"}), 404
     started = date.today().isoformat()
     cursor = db.execute(
-        "INSERT INTO subscriptions (user_id, plan_id, status, start_date) VALUES (?, ?, 'active', ?)",
-        (session["user_id"], plan_id, started),
+        "INSERT INTO subscriptions (user_id, plan_id, customer_id, status, start_date) VALUES (?, ?, ?, 'active', ?)",
+        (session["user_id"], plan_id, customer_id, started),
     )
     invoice_number = f"INV-{date.today():%Y%m%d}-{cursor.lastrowid:05d}"
     db.execute(

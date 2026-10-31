@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
           "No invoices yet. Start a subscription to generate one."
         );
 
-        cell.colSpan = 5;
+        cell.colSpan = 6;
         cell.className = "empty-cell";
 
         row.append(cell);
@@ -93,6 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           row.append(
             billingCell(invoice.invoice_number),
+            billingCell(invoice.customer_name || "—"),
             billingCell(
               `${invoice.product_name} / ${invoice.plan_name}`
             ),

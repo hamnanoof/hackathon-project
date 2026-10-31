@@ -15,20 +15,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const message = document.getElementById("form-message");
 
   async function loadSubscriptions() {
-    const [plans, subscriptions] = await Promise.all([
+    const [customers, plans, subscriptions] = await Promise.all([
+      api("/api/customers"),
       api("/api/plans"),
       api("/api/subscriptions")
     ]);
-    const select = document.getElementById("subscription-plan");
-    select.replaceChildren(new Option("Choose a plan", ""));
-    plans.forEach((plan) => select.add(new Option(
+    const customerSelect = document.getElementById("subscription-customer");
+    const planSelect = document.getElementById("subscription-plan");
+    customerSelect.replaceChildren(new Option("Choose a customer", ""));
+    customers.forEach((customer) => customerSelect.add(new Option(
+      `${customer.name} (${customer.email})`,
+      customer.id
+    )));
+    planSelect.replaceChildren(new Option("Choose a plan", ""));
+    plans.forEach((plan) => planSelect.add(new Option(
       `${plan.product_name} — ${plan.name} (${subscriptionMoney(plan.price)}/${plan.billing_interval})`,
       plan.id
     )));
     if (subscriptions.length === 0) {
       const row = document.createElement("tr");
-      const cell = subscriptionCell("No subscriptions yet. Create a plan to get started.");
-      cell.colSpan = 6;
+      const cell = subscriptionCell("No subscriptions yet. Create a customer and plan to get started.");
+      cell.colSpan = 7;
       cell.className = "empty-cell";
       row.append(cell);
       table.replaceChildren(row);
@@ -37,9 +44,13 @@ document.addEventListener("DOMContentLoaded", () => {
     table.replaceChildren();
     for (const subscription of subscriptions) {
       const row = document.createElement("tr");
-      row.append(subscriptionCell(subscription.product_name), subscriptionCell(subscription.plan_name),
+      row.append(
+        subscriptionCell(subscription.customer_name || "—"),
+        subscriptionCell(subscription.product_name),
+        subscriptionCell(subscription.plan_name),
         subscriptionCell(`${subscriptionMoney(subscription.price)}/${subscription.billing_interval}`),
-        subscriptionCell(subscription.start_date));
+        subscriptionCell(subscription.start_date)
+      );
       const status = subscriptionCell("");
       const badge = document.createElement("span");
       badge.className = `status-badge ${subscription.status}`;

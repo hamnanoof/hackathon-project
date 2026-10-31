@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Customers — Subscript</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/auth.js"></script>
+  <script defer src="/js/customers.js"></script>
+</head>
+<body data-auth="required">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/dashboard.html">Subscript<span>.</span></a>
+      <p class="nav-caption">WORKSPACE</p>
+      <nav class="main-nav">
+        <a href="/dashboard.html">Overview</a>
+        <a href="/customers.html" class="active">Customers</a>
+        <a href="/products.html">Products</a>
+        <a href="/plans.html">Plans</a>
+        <a href="/subscriptions.html">Subscriptions</a>
+        <a href="/invoices.html">Invoices</a>
+        <a href="/payments.html">Payments</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <span id="user-name">Your workspace</span>
+        <button class="logout-button" data-logout>Sign out</button>
+      </div>
+    </aside>
+    <main class="main-content">
+      <header class="page-header">
+        <div>
+          <p class="eyebrow">CUSTOMERS</p>
+          <h1>Customers</h1>
+          <p class="muted">Manage your customer information.</p>
+        </div>
+      </header>
+      <section class="panel form-panel">
+        <div>
+          <h2>Add a customer</h2>
+          <p class="muted">Enter customer details to add them to your workspace.</p>
+        </div>
+        <form id="customer-form" class="inline-form">
+          <label>Name<input name="name" required maxlength="120"></label>
+          <label>Email<input name="email" type="email" required maxlength="255"></label>
+          <label>Phone<input name="phone" maxlength="50"></label>
+          <label>Address<input name="address" maxlength="500"></label>
+          <button class="button" type="submit">Add customer</button>
+        </form>
+        <p id="form-message" class="form-message" role="status"></p>
+      </section>
+      <section class="panel table-panel">
+        <div class="section-heading">
+          <div>
+            <h2>Your customers</h2>
+            <p class="muted">Customers registered in your workspace.</p>
+          </div>
+          <span class="count-pill" id="customer-count">0 customers</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+                <th>Added</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="customers-table"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

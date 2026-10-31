@@ -27,7 +27,10 @@ def init_db(app):
         schema_path = Path(app.config["BASE_DIR"]) / "database" / "schema.sql"
         db.executescript(schema_path.read_text(encoding="utf-8"))
         db.commit()
-        def migrate_db(db):
+        migrate_db(db)
+
+
+def migrate_db(db):
     # Create the customer table for existing databases.
     db.execute("""
         CREATE TABLE IF NOT EXISTS customers (
