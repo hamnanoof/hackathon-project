@@ -45,7 +45,6 @@ def migrate_db(db):
         )
     """)
 
-    # Check whether subscriptions already have customer_id.
     columns = [
         row["name"]
         for row in db.execute("PRAGMA table_info(subscriptions)").fetchall()
