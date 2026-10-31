@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoices — Subscript</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/auth.js"></script>
+  <script defer src="/js/billing.js"></script>
+</head>
+<body data-auth="required" data-billing="invoices">
+  <div class="app-shell">
+    <aside class="sidebar"><a class="brand" href="/dashboard.html">Subscript<span>.</span></a><p class="nav-caption">WORKSPACE</p><nav class="main-nav"><a href="/dashboard.html">Overview</a><a href="/products.html">Products</a><a href="/plans.html">Plans</a><a href="/subscriptions.html">Subscriptions</a><a class="active" href="/invoices.html">Invoices</a><a href="/payments.html">Payments</a></nav><div class="sidebar-bottom"><span id="user-name">Your workspace</span><button class="logout-button" data-logout>Sign out</button></div></aside>
+    <main class="main-content">
+      <header class="page-header"><div><p class="eyebrow">BILLING</p><h1>Invoices</h1><p class="muted">Review invoices generated for your subscriptions.</p></div></header>
+      <section class="panel table-panel"><div class="section-heading"><div><h2>All invoices</h2><p class="muted">Pending invoices can be recorded as paid from Payments.</p></div></div><div class="table-wrap"><table><thead><tr><th>Invoice</th><th>Product / plan</th><th>Amount</th><th>Due date</th><th>Status</th></tr></thead><tbody id="invoices-table"></tbody></table></div></section>
+    </main>
+  </div>
+</body>
+</html>

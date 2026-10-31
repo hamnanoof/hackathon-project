@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Create account — Subscript</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/auth.js"></script>
+</head>
+<body class="auth-page">
+  <a class="brand auth-brand" href="/">Subscript<span>.</span></a>
+  <main class="auth-card">
+    <p class="eyebrow">GET STARTED</p>
+    <h1>Create your account</h1>
+    <p class="muted">Your subscription workspace starts here.</p>
+    <form id="register-form" class="stack-form">
+      <label>Full name<input name="name" autocomplete="name" required></label>
+      <label>Email address<input name="email" type="email" autocomplete="email" required></label>
+      <label>Password<input name="password" type="password" minlength="8" autocomplete="new-password" required><small>Use at least 8 characters.</small></label>
+      <button class="button full-width" type="submit">Create account</button>
+      <p id="form-message" class="form-message" role="status"></p>
+    </form>
+    <p class="auth-foot">Already have an account? <a href="/login.html">Sign in</a></p>
+  </main>
+</body>
+</html>

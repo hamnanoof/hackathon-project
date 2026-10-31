@@ -1,0 +1,23 @@
+from flask import Blueprint, jsonify, session
+
+from backend.auth import require_auth
+from backend.database import get_db
+
+
+invoices_bp = Blueprint("invoices", __name__, url_prefix="/api/invoices")
+
+
+@invoices_bp.get("")
+@require_auth
+def list_invoices():
+    rows = get_db().execute(
+        """SELECT invoices.id, invoices.invoice_number, invoices.amount, invoices.status,
+                  invoices.due_date, products.name AS product_name, plans.name AS plan_name
+           FROM invoices JOIN subscriptions ON subscriptions.id = invoices.subscription_id
+           JOIN plans ON plans.id = subscriptions.plan_id
+           JOIN products ON products.id = plans.product_id
+           WHERE invoices.user_id = ? ORDER BY invoices.id DESC""",
+        (session["user_id"],),
+    ).fetchall()
+    return jsonify([dict(row) for row in rows])
+

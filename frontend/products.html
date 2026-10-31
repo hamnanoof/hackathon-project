@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Products — Subscript</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/auth.js"></script>
+  <script defer src="/js/products.js"></script>
+</head>
+<body data-auth="required">
+  <div class="app-shell">
+    <aside class="sidebar"><a class="brand" href="/dashboard.html">Subscript<span>.</span></a><p class="nav-caption">WORKSPACE</p><nav class="main-nav"><a href="/dashboard.html">Overview</a><a class="active" href="/products.html">Products</a><a href="/plans.html">Plans</a><a href="/subscriptions.html">Subscriptions</a><a href="/invoices.html">Invoices</a><a href="/payments.html">Payments</a></nav><div class="sidebar-bottom"><span id="user-name">Your workspace</span><button class="logout-button" data-logout>Sign out</button></div></aside>
+    <main class="main-content">
+      <header class="page-header"><div><p class="eyebrow">CATALOG</p><h1>Products</h1><p class="muted">Organize the products customers subscribe to.</p></div></header>
+      <section class="panel form-panel"><div><h2>Add a product</h2><p class="muted">Start with a name and a short description.</p></div><form id="product-form" class="inline-form"><label>Product name<input name="name" required maxlength="120"></label><label>Description<input name="description" maxlength="500"></label><button class="button" type="submit">Add product</button></form><p id="form-message" class="form-message" role="status"></p></section>
+      <section class="panel table-panel"><div class="section-heading"><div><h2>Your products</h2><p class="muted">Products connected to your account.</p></div><span class="count-pill" id="product-count">0 products</span></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>Description</th><th>Added</th><th></th></tr></thead><tbody id="products-table"></tbody></table></div></section>
+    </main>
+  </div>
+</body>
+</html>

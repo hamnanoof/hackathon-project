@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Subscriptions — Subscript</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/auth.js"></script>
+  <script defer src="/js/subscriptions.js"></script>
+</head>
+<body data-auth="required">
+  <div class="app-shell">
+    <aside class="sidebar"><a class="brand" href="/dashboard.html">Subscript<span>.</span></a><p class="nav-caption">WORKSPACE</p><nav class="main-nav"><a href="/dashboard.html">Overview</a><a href="/products.html">Products</a><a href="/plans.html">Plans</a><a class="active" href="/subscriptions.html">Subscriptions</a><a href="/invoices.html">Invoices</a><a href="/payments.html">Payments</a></nav><div class="sidebar-bottom"><span id="user-name">Your workspace</span><button class="logout-button" data-logout>Sign out</button></div></aside>
+    <main class="main-content">
+      <header class="page-header"><div><p class="eyebrow">CUSTOMERS</p><h1>Subscriptions</h1><p class="muted">Start and manage subscriptions for your customers.</p></div></header>
+      <section class="panel form-panel"><div><h2>Start a subscription</h2><p class="muted">An initial invoice is created automatically.</p></div><form id="subscription-form" class="inline-form"><label>Choose a plan<select name="plan_id" id="subscription-plan" required><option value="">Choose a plan</option></select></label><button class="button" type="submit">Start subscription</button></form><p id="form-message" class="form-message" role="status"></p></section>
+      <section class="panel table-panel"><div class="section-heading"><div><h2>All subscriptions</h2><p class="muted">Your active and cancelled subscriptions.</p></div></div><div class="table-wrap"><table><thead><tr><th>Product</th><th>Plan</th><th>Price</th><th>Started</th><th>Status</th><th></th></tr></thead><tbody id="subscriptions-table"></tbody></table></div></section>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Overview — Subscript</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/auth.js"></script>
+  <script defer src="/js/dashboard.js"></script>
+</head>
+<body data-auth="required">
+  <div class="app-shell">
+    <aside class="sidebar">
+      <a class="brand" href="/dashboard.html">Subscript<span>.</span></a>
+      <p class="nav-caption">WORKSPACE</p>
+      <nav class="main-nav">
+        <a class="active" href="/dashboard.html">Overview</a>
+        <a href="/products.html">Products</a>
+        <a href="/plans.html">Plans</a>
+        <a href="/subscriptions.html">Subscriptions</a>
+        <a href="/invoices.html">Invoices</a>
+        <a href="/payments.html">Payments</a>
+      </nav>
+      <div class="sidebar-bottom"><span id="user-name">Your workspace</span><button class="logout-button" data-logout>Sign out</button></div>
+    </aside>
+    <main class="main-content">
+      <header class="page-header"><div><p class="eyebrow">WORKSPACE OVERVIEW</p><h1>Good to see you<span id="greeting-name"></span>.</h1><p class="muted">Here's how your subscription business is doing.</p></div><a class="button" href="/subscriptions.html">New subscription</a></header>
+      <section class="stat-grid" aria-label="Business summary">
+        <article class="stat-card"><span>Products</span><strong id="stat-products">—</strong><small>In your catalog</small></article>
+        <article class="stat-card"><span>Active subscriptions</span><strong id="stat-subscriptions">—</strong><small>Currently active</small></article>
+        <article class="stat-card"><span>Outstanding invoices</span><strong id="stat-invoices">—</strong><small>Awaiting payment</small></article>
+        <article class="stat-card"><span>Payments collected</span><strong id="stat-collected">—</strong><small>Completed payments</small></article>
+      </section>
+      <section class="panel welcome-panel"><p class="eyebrow">YOUR NEXT STEP</p><h2>Build your subscription catalog</h2><p class="muted">Add a product, create a plan, then start a subscription to generate its invoice.</p><div class="inline-actions"><a class="button button-light" href="/products.html">Add a product</a><a class="text-link" href="/plans.html">Explore plans <span aria-hidden="true">→</span></a></div></section>
+    </main>
+  </div>
+</body>
+</html>

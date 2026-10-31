@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payments — Subscript</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <script defer src="/js/auth.js"></script>
+  <script defer src="/js/billing.js"></script>
+</head>
+<body data-auth="required" data-billing="payments">
+  <div class="app-shell">
+    <aside class="sidebar"><a class="brand" href="/dashboard.html">Subscript<span>.</span></a><p class="nav-caption">WORKSPACE</p><nav class="main-nav"><a href="/dashboard.html">Overview</a><a href="/products.html">Products</a><a href="/plans.html">Plans</a><a href="/subscriptions.html">Subscriptions</a><a href="/invoices.html">Invoices</a><a class="active" href="/payments.html">Payments</a></nav><div class="sidebar-bottom"><span id="user-name">Your workspace</span><button class="logout-button" data-logout>Sign out</button></div></aside>
+    <main class="main-content">
+      <header class="page-header"><div><p class="eyebrow">BILLING</p><h1>Payments</h1><p class="muted">Record and track payments against outstanding invoices.</p></div></header>
+      <section class="panel form-panel"><div><h2>Record a payment</h2><p class="muted">This demo records a payment; it does not charge a card.</p></div><form id="payment-form" class="inline-form"><label>Outstanding invoice<select name="invoice_id" id="payment-invoice" required><option value="">Choose an invoice</option></select></label><label>Payment method<select name="method"><option value="card">Card</option><option value="bank transfer">Bank transfer</option><option value="cash">Cash</option></select></label><button class="button" type="submit">Record payment</button></form><p id="form-message" class="form-message" role="status"></p></section>
+      <section class="panel table-panel"><div class="section-heading"><div><h2>Payment history</h2><p class="muted">Completed payments recorded in this workspace.</p></div></div><div class="table-wrap"><table><thead><tr><th>Invoice</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th></tr></thead><tbody id="payments-table"></tbody></table></div></section>
+    </main>
+  </div>
+</body>
+</html>
