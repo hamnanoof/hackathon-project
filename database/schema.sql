@@ -72,3 +72,16 @@ ON invoices(subscription_id);
 
 CREATE INDEX IF NOT EXISTS idx_payments_invoice
 ON payments(invoice_id);
+CREATE TABLE IF NOT EXISTS customers (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT,
+    address TEXT,
+    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, email)
+);
+
+CREATE INDEX IF NOT EXISTS idx_customers_user
+ON customers(user_id);
